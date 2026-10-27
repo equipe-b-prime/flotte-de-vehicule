@@ -89,4 +89,16 @@ public class AffectationService {
         affectationRepository.deleteById(id);
         return toDto(affectation);
     }
+
+    public List<AffectationResponseDto> getAffectationsBySalarie(Long salarieId) {
+        return affectationRepository.findBySalarieIdOrderByDateDebutDesc(salarieId).stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<AffectationResponseDto> getAffectationsByVehicule(Long vehiculeId) {
+        return affectationRepository.findByVehiculeIdOrderByDateDebutDesc(vehiculeId).stream()
+                .map(this::toDto)
+                .toList();
+    }
 }

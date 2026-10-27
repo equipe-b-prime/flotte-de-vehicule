@@ -105,4 +105,24 @@ public class VehiculeService {
         vehiculeRepository.deleteById(id);
         return toDto(vehicule);
     }
+
+    public List<VehiculeResponseDto> getVehiculesBySite(Long siteId) {
+        return vehiculeRepository.findBySiteIdOrderByImmatriculationAsc(siteId).stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<VehiculeResponseDto> rechercherVehicules(String immatriculation, String marque) {
+        if (immatriculation != null && !immatriculation.isBlank() && marque != null && !marque.isBlank()) {
+            return vehiculeRepository.findByImmatriculationContainingIgnoreCaseAndMarqueContainingIgnoreCase(immatriculation, marque)
+                    .stream().map(this::toDto).toList();
+        } else if (immatriculation != null && !immatriculation.isBlank()) {
+            return vehiculeRepository.findByImmatriculationContainingIgnoreCase(immatriculation)
+                    .stream().map(this::toDto).toList();
+        } else if (marque != null && !marque.isBlank()) {
+            return vehiculeRepository.findByMarqueContainingIgnoreCase(marque)
+                    .stream().map(this::toDto).toList();
+        }
+        return getAllVehicules();
+    }
 }
