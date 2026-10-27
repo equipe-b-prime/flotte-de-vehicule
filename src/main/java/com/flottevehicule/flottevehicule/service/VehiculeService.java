@@ -1,9 +1,12 @@
 package com.flottevehicule.flottevehicule.service;
 
+import com.flottevehicule.flottevehicule.dto.ProchainEntretienResponseDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeRequestDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeResponseDto;
 import com.flottevehicule.flottevehicule.entity.Contrat;
+import com.flottevehicule.flottevehicule.entity.Entretien;
 import com.flottevehicule.flottevehicule.entity.Site;
+import com.flottevehicule.flottevehicule.entity.TypeEntretien;
 import com.flottevehicule.flottevehicule.entity.Vehicule;
 import com.flottevehicule.flottevehicule.exception.DoublonRessourceException;
 import com.flottevehicule.flottevehicule.exception.NotFoundException;
@@ -13,6 +16,7 @@ import com.flottevehicule.flottevehicule.repository.AffectationRepository;
 import com.flottevehicule.flottevehicule.repository.ContratRepository;
 import com.flottevehicule.flottevehicule.repository.EntretienRepository;
 import com.flottevehicule.flottevehicule.repository.SiteRepository;
+import com.flottevehicule.flottevehicule.repository.TypeEntretienRepository;
 import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +37,7 @@ public class VehiculeService {
     private final SiteService siteService;
     private final AffectationRepository affectationRepository;
     private final EntretienRepository entretienRepository;
+    private final TypeEntretienRepository typeEntretienRepository;
 
     public VehiculeResponseDto toDto(Vehicule vehicule) {
         return VehiculeResponseDto.builder()
@@ -124,5 +130,41 @@ public class VehiculeService {
                     .stream().map(this::toDto).toList();
         }
         return getAllVehicules();
+    }
+
+    public ProchainEntretienResponseDto calculerProchainEntretien(Long vehiculeId) {
+        Vehicule vehicule = vehiculeRepository.findById(vehiculeId)
+                .orElseThrow(() -> new NotFoundException("Véhicule non trouvé avec l'id " + vehiculeId));
+
+        Optional<Entretien> dernierEntretien = entretienRepository.findByVehiculeIdOrderByDateInterventionDesc(vehiculeId)
+                .stream().findFirst();
+
+        LocalDateTime pointDepart;
+        int kilometrageDepart;
+
+        if (dernierEntretien.isPresent() && dernierEntretien.get().getTypeEntretien().getEstRegulier()) {
+            pointDepart = dernierEntretien.get().getDateIntervention();
+            kilometrageDepart = dernierEntretien.get().getKilometrage() != null ?
+                    dernierEntretien.get().getKilometrage() : 0;
+        } else {
+            pointDepart = vehicule.getDateMiseEnCirculation();
+            kilometrageDepart = 0;
+        }
+
+        LocalDateTime dateEcheance = pointDepart.plusYears(1);
+        int kilometrageCible = kilometrageDepart + 15000;
+
+        String seuil;
+        if (dateEcheance.isBefore(LocalDateTime.now().plusMonths(12))) {
+            seuil = "date";
+        } else {
+            seuil = "kilométrage";
+        }
+
+        return ProchainEntretienResponseDto.builder()
+                .dateEstimee(dateEcheance)
+                .kilometrageCible(kilometrageCible)
+                .seuilDeclencheur(seuil)
+                .build();
     }
 }

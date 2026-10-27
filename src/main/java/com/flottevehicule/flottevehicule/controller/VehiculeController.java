@@ -1,6 +1,7 @@
 package com.flottevehicule.flottevehicule.controller;
 
 import com.flottevehicule.flottevehicule.dto.EntretienResponseDto;
+import com.flottevehicule.flottevehicule.dto.ProchainEntretienResponseDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeRequestDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeResponseDto;
 import com.flottevehicule.flottevehicule.service.EntretienService;
@@ -50,5 +51,10 @@ public class VehiculeController {
     @GetMapping("/{id}/entretiens")
     public List<EntretienResponseDto> getEntretiensByVehicule(@PathVariable Long id) {
         return entretienService.getEntretiensByVehicule(id);
+    }
+
+    @GetMapping("/{id}/prochain-entretien")
+    public ProchainEntretienResponseDto getProchainEntretien(@PathVariable Long id) {
+        return vehiculeService.calculerProchainEntretien(id);
     }
 }
