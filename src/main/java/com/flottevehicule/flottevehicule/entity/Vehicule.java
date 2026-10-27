@@ -33,4 +33,7 @@ public class Vehicule {
     @ManyToOne
     @JoinColumn(name = "contrat_id")
     private Contrat contrat;
+
+    @Column(name = "kilometrage_actuel")
+    private Integer kilometrageActuel;
 }

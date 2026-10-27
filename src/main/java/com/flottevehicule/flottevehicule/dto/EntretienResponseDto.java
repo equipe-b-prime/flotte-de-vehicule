@@ -22,6 +22,7 @@ public class EntretienResponseDto {
     private LocalDateTime dateIntervention;
     private BigDecimal cout;
     private int dureeImmobilisatin;
+    private Integer kilometrage;
     private VehiculeResponseDto vehicule;
     private TypeEntretienResponseDto typeEntretien;
     private PrestataireResponseDto prestataire;

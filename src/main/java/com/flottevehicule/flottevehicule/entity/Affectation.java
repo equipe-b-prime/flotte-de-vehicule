@@ -28,6 +28,9 @@ public class Affectation {
     @Column(name = "date_fin")
     private LocalDateTime dateFin;
 
+    @Column(name = "kilometrage_restitution")
+    private Integer kilometrageRestitution;
+
     @ManyToOne
     @JoinColumn(name = "salarie_id")
     private Salarie salarie;

@@ -2,29 +2,24 @@ package com.flottevehicule.flottevehicule.service;
 
 import com.flottevehicule.flottevehicule.dto.SiteRequestDto;
 import com.flottevehicule.flottevehicule.dto.SiteResponseDto;
+import com.flottevehicule.flottevehicule.entity.Site;
+import com.flottevehicule.flottevehicule.exception.DoublonRessourceException;
+import com.flottevehicule.flottevehicule.exception.NotFoundException;
+import com.flottevehicule.flottevehicule.exception.RessourceUtiliseeException;
+import com.flottevehicule.flottevehicule.repository.SiteRepository;
+import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import com.flottevehicule.flottevehicule.entity.Site;
-import com.flottevehicule.flottevehicule.repository.SiteRepository;
 
-/**
- * Service métier gérant les sites.
- * Fournit les opérations CRUD ainsi que les conversions entité/DTO.
- */
 @Service
 @RequiredArgsConstructor
 public class SiteService {
 
     private final SiteRepository siteRepository;
+    private final VehiculeRepository vehiculeRepository;
 
-    /**
-     * Convertit une entité site en objet de réponse.
-     *
-     * @param site L'entité site à convertir.
-     * @return SiteResponseDto Les détails du site converti.
-     */
     public SiteResponseDto toDto(Site site) {
         return SiteResponseDto.builder()
                 .id(site.getId())
@@ -34,12 +29,6 @@ public class SiteService {
                 .build();
     }
 
-    /**
-     * Convertit les données d'une requête en entité site.
-     *
-     * @param siteRequest Les données de la requête pour créer le site.
-     * @return Site L'entité site créée.
-     */
     public Site toEntity(SiteRequestDto siteRequest) {
         return Site.builder()
                 .nom(siteRequest.getNom())
@@ -48,64 +37,39 @@ public class SiteService {
                 .build();
     }
 
-    /**
-     * Crée un nouveau site.
-     *
-     * @param siteRequest les informations du site à créer
-     * @return le site créé
-     */
     public SiteResponseDto createSite(SiteRequestDto siteRequest) {
+        if (siteRepository.findByNom(siteRequest.getNom()).isPresent()) {
+            throw new DoublonRessourceException("Un site avec le nom '" + siteRequest.getNom() + "' existe déjà");
+        }
         return toDto(siteRepository.save(toEntity(siteRequest)));
     }
 
-    /**
-     * Récupère un site à partir de son identifiant.
-     *
-     * @param id L'identifiant du site à récupérer.
-     * @return SiteResponseDto Les détails du site récupéré.
-     */
     public SiteResponseDto getSiteById(Long id) {
         Site site = siteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Site non trouvé"));
+                .orElseThrow(() -> new NotFoundException("Site non trouvé avec l'id " + id));
         return toDto(site);
     }
 
-    /**
-     * Récupère la liste de tous les sites.
-     *
-     * @return List<SiteResponseDto> La liste des sites récupérés.
-     */
     public List<SiteResponseDto> getAllSites() {
-        return siteRepository.findAll().stream()
+        return siteRepository.findAllByOrderByVilleAscNomAsc().stream()
                 .map(this::toDto)
                 .toList();
     }
 
-    /**
-     * Modifie un site existant.
-     *
-     * @param id L'identifiant du site à modifier.
-     * @param siteRequest Les données de la requête pour modifier le site.
-     * @return SiteResponseDto Les détails du site modifié.
-     */
     public SiteResponseDto updateSiteById(Long id, SiteRequestDto siteRequest) {
         Site site = siteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Site non trouvé"));
-        site.setNom(siteRequest.getNom());
-        site.setVille(siteRequest.getVille());
+                .orElseThrow(() -> new NotFoundException("Site non trouvé avec l'id " + id));
         site.setAdresse(siteRequest.getAdresse());
+        site.setVille(siteRequest.getVille());
         return toDto(siteRepository.save(site));
     }
 
-    /**
-     * Supprime un site à partir de son identifiant.
-     *
-     * @param id L'identifiant du site à supprimer.
-     * @return SiteResponseDto Les détails du site supprimé.
-     */
     public SiteResponseDto deleteSiteById(Long id) {
         Site site = siteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Site non trouvé"));
+                .orElseThrow(() -> new NotFoundException("Site non trouvé avec l'id " + id));
+        if (vehiculeRepository.existsBySiteId(id)) {
+            throw new RessourceUtiliseeException("Impossible de supprimer le site : il contient des véhicules");
+        }
         siteRepository.deleteById(id);
         return toDto(site);
     }

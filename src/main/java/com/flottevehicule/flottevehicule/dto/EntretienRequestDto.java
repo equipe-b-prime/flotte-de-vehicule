@@ -19,6 +19,7 @@ public class EntretienRequestDto {
     private LocalDateTime dateIntervention;
     private BigDecimal cout;
     private int dureeImmobilisatin;
+    private Integer kilometrage;
     private Long vehiculeId;
     private Long typeEntretienId;
     private Long prestataireId;

@@ -1,13 +1,14 @@
 package com.flottevehicule.flottevehicule.repository;
 
+import com.flottevehicule.flottevehicule.entity.Salarie;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.flottevehicule.flottevehicule.entity.Salarie;
 
-/**
- * Repository JPA pour l'accès aux données des salariés.
- * Fournit les opérations CRUD standard sur la table "salarie".
- */
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface SalarieRepository extends JpaRepository<Salarie, Long> {
+    Optional<Salarie> findByMatricule(String matricule);
+    List<Salarie> findAllByOrderByNomAsc();
 }

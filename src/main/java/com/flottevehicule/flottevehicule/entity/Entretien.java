@@ -31,6 +31,8 @@ public class Entretien {
 
     private int dureeImmobilisatin;
 
+    private Integer kilometrage;
+
     @ManyToOne
     @JoinColumn(name = "vehicule_id")
     private Vehicule vehicule;
