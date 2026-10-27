@@ -17,6 +17,5 @@ public interface VehiculeRepository extends JpaRepository<Vehicule, Long> {
     List<Vehicule> findByImmatriculationContainingIgnoreCase(String immatriculation);
     List<Vehicule> findByMarqueContainingIgnoreCase(String marque);
     boolean existsBySiteId(Long siteId);
-    boolean existsByAffectationsIsNotEmptyOrEntretiensIsNotEmpty();
-    Optional<Vehicule> findTopByOrderByKilometrageActuelDesc();
+    Integer findTopByOrderByKilometrageActuelDesc();
 }

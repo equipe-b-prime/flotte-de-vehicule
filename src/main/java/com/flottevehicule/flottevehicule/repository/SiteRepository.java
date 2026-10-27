@@ -11,5 +11,4 @@ import java.util.Optional;
 public interface SiteRepository extends JpaRepository<Site, Long> {
     Optional<Site> findByNom(String nom);
     List<Site> findAllByOrderByVilleAscNomAsc();
-    boolean existsByVehiculesIsNotEmpty();
 }
