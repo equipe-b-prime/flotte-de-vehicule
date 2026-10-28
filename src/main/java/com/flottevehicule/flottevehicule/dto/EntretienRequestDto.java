@@ -1,5 +1,6 @@
 package com.flottevehicule.flottevehicule.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class EntretienRequestDto {
     private Long id;
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime dateIntervention;
     private BigDecimal cout;
     private int dureeImmobilisatin;

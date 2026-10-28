@@ -76,7 +76,7 @@ public class EntretienService {
             throw new RequeteInvalideException("La date d'entretien ne peut pas précéder la mise en service du véhicule");
         }
 
-        Integer dernierKm = entretienRepository.findTopByVehiculeIdOrderByKilometrageDesc(vehicule.getId());
+        Integer dernierKm = entretienRepository.findDernierKilometrage(vehicule.getId());
         if (dernierKm != null && entretienRequest.getKilometrage() != null &&
                 entretienRequest.getKilometrage() <= dernierKm) {
             throw new RequeteInvalideException(
