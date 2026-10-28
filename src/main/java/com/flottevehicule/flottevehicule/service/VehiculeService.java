@@ -3,12 +3,14 @@ package com.flottevehicule.flottevehicule.service;
 import com.flottevehicule.flottevehicule.dto.VehiculeRequestDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeResponseDto;
 import com.flottevehicule.flottevehicule.entity.Contrat;
+import com.flottevehicule.flottevehicule.entity.Entretien;
 import com.flottevehicule.flottevehicule.entity.Site;
 import com.flottevehicule.flottevehicule.entity.Vehicule;
 import com.flottevehicule.flottevehicule.exception.DoublonRessourceException;
 import com.flottevehicule.flottevehicule.exception.NotFoundException;
 import com.flottevehicule.flottevehicule.exception.RequeteInvalideException;
 import com.flottevehicule.flottevehicule.exception.RessourceUtiliseeException;
+import com.flottevehicule.flottevehicule.dto.ProchainEntretienResponseDto;
 import com.flottevehicule.flottevehicule.repository.AffectationRepository;
 import com.flottevehicule.flottevehicule.repository.ContratRepository;
 import com.flottevehicule.flottevehicule.repository.EntretienRepository;
@@ -104,5 +106,72 @@ public class VehiculeService {
         }
         vehiculeRepository.deleteById(id);
         return toDto(vehicule);
+    }
+
+
+    public List<VehiculeResponseDto> getVehiculesBySite(Long siteId) {
+        siteRepository.findById(siteId)
+                .orElseThrow(() -> new NotFoundException("Site non trouvé avec l'id " + siteId));
+        return vehiculeRepository.findBySiteIdOrderByImmatriculationAsc(siteId).stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<VehiculeResponseDto> searchVehicules(String immatriculation, String marque) {
+        if (immatriculation != null && !immatriculation.isEmpty() && marque != null && !marque.isEmpty()) {
+            return vehiculeRepository.findByImmatriculationContainingIgnoreCaseAndMarqueContainingIgnoreCase(immatriculation, marque).stream()
+                    .map(this::toDto)
+                    .toList();
+        } else if (immatriculation != null && !immatriculation.isEmpty()) {
+            return vehiculeRepository.findByImmatriculationContainingIgnoreCase(immatriculation).stream()
+                    .map(this::toDto)
+                    .toList();
+        } else if (marque != null && !marque.isEmpty()) {
+            return vehiculeRepository.findByMarqueContainingIgnoreCase(marque).stream()
+                    .map(this::toDto)
+                    .toList();
+        }
+        return getAllVehicules();
+    }
+
+    public ProchainEntretienResponseDto calculerProchainEntretien(Long vehiculeId) {
+        Vehicule vehicule = vehiculeRepository.findById(vehiculeId)
+                .orElseThrow(() -> new NotFoundException("Véhicule non trouvé avec l'id " + vehiculeId));
+
+        List<Entretien> entretiens = entretienRepository.findByVehiculeIdOrderByDateInterventionDesc(vehiculeId).stream().toList();
+
+        LocalDateTime dernierEntretien = null;
+        if (!entretiens.isEmpty()) {
+            dernierEntretien = entretiens.get(0).getDateIntervention();
+        }
+
+        LocalDateTime dateEstimee;
+        Integer kilometrageCible;
+        String seuilDeclencheur;
+
+        if (dernierEntretien == null) {
+            if (vehicule.getDateMiseEnCirculation() != null) {
+                dateEstimee = vehicule.getDateMiseEnCirculation();
+            } else {
+                dateEstimee = LocalDateTime.now();
+            }
+            kilometrageCible = 0;
+            seuilDeclencheur = "mise en service";
+        } else {
+            LocalDateTime unAnApres = dernierEntretien.plusYears(1);
+            dateEstimee = unAnApres;
+            if (entretiens.get(0).getKilometrage() != null) {
+                kilometrageCible = entretiens.get(0).getKilometrage() + 15000;
+            } else {
+                kilometrageCible = 0;
+            }
+            seuilDeclencheur = "15 000 km ou 1 an";
+        }
+
+        return ProchainEntretienResponseDto.builder()
+                .dateEstimee(dateEstimee)
+                .kilometrageCible(kilometrageCible)
+                .seuilDeclencheur(seuilDeclencheur)
+                .build();
     }
 }

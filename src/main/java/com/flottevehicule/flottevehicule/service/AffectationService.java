@@ -89,4 +89,13 @@ public class AffectationService {
         affectationRepository.deleteById(id);
         return toDto(affectation);
     }
+
+
+    public List<AffectationResponseDto> getAffectationsBySalarie(Long salarieId) {
+        salarieRepository.findById(salarieId)
+                .orElseThrow(() -> new NotFoundException("Salarié non trouvé avec l'id " + salarieId));
+        return affectationRepository.findBySalarieIdOrderByDateDebutDesc(salarieId).stream()
+                .map(this::toDto)
+                .toList();
+    }
 }

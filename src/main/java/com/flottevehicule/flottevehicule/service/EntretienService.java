@@ -10,6 +10,8 @@ import com.flottevehicule.flottevehicule.exception.NotFoundException;
 import com.flottevehicule.flottevehicule.exception.RequeteInvalideException;
 import com.flottevehicule.flottevehicule.repository.EntretienRepository;
 import com.flottevehicule.flottevehicule.repository.PrestataireRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.flottevehicule.flottevehicule.repository.TypeEntretienRepository;
 import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
 import lombok.RequiredArgsConstructor;
@@ -115,5 +117,18 @@ public class EntretienService {
                 .orElseThrow(() -> new NotFoundException("Entretien non trouvé avec l'id " + id));
         entretienRepository.deleteById(id);
         return toDto(entretien);
+    }
+
+
+    public List<EntretienResponseDto> getEntretiensByVehicule(Long vehiculeId) {
+        vehiculeRepository.findById(vehiculeId)
+                .orElseThrow(() -> new NotFoundException("Véhicule non trouvé avec l'id " + vehiculeId));
+        return entretienRepository.findByVehiculeIdOrderByDateInterventionDesc(vehiculeId).stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public Page<EntretienResponseDto> getAllEntretiensPaginated(Pageable pageable) {
+        return entretienRepository.findAll(pageable).map(this::toDto);
     }
 }
