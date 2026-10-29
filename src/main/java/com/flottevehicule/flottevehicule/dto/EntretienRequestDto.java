@@ -20,7 +20,7 @@ public class EntretienRequestDto {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime dateIntervention;
     private BigDecimal cout;
-    private int dureeImmobilisatin;
+    private Integer dureeImmobilisatin;
     private Integer kilometrage;
     private Long vehiculeId;
     private Long typeEntretienId;

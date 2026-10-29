@@ -25,7 +25,7 @@ public interface AffectationRepository extends JpaRepository<Affectation, Long> 
      */
     @Query("SELECT a FROM Affectation a WHERE a.vehicule.id = :vehiculeId " +
            "AND (a.dateFin IS NULL OR a.dateFin > :newDebut) " +
-           "AND (a.dateDebut < :newFin OR :newFin IS NULL)")
+           "AND (cast(:newFin as timestamp) IS NULL OR a.dateDebut < :newFin)")
     List<Affectation> findChevauchements(
             @Param("vehiculeId") Long vehiculeId,
             @Param("newDebut") LocalDateTime newDebut,
