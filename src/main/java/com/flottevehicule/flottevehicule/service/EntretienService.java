@@ -106,8 +106,12 @@ public class EntretienService {
         if (page < 0) page = 0;
 
         String[] sortParts = (sort != null && !sort.isBlank()) ? sort.split(",") : new String[]{"dateIntervention", "desc"};
+        String sortProperty = sortParts[0];
+        if ("date".equalsIgnoreCase(sortProperty)) {
+            sortProperty = "dateIntervention";
+        }
         Sort.Direction direction = sortParts.length > 1 && sortParts[1].equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParts[0]));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortProperty));
 
         return entretienRepository.findAll(pageable).map(this::toDto);
     }
