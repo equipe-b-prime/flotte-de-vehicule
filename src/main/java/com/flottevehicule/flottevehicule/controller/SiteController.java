@@ -1,8 +1,10 @@
 package com.flottevehicule.flottevehicule.controller;
 
+import com.flottevehicule.flottevehicule.dto.KilometrageSiteResponseDto;
 import com.flottevehicule.flottevehicule.dto.SiteRequestDto;
 import com.flottevehicule.flottevehicule.dto.SiteResponseDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeResponseDto;
+import com.flottevehicule.flottevehicule.service.RestitutionReportingService;
 import com.flottevehicule.flottevehicule.service.SiteService;
 import com.flottevehicule.flottevehicule.service.VehiculeService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ public class SiteController {
 
     private final SiteService siteService;
     private final VehiculeService vehiculeService;
+    private final RestitutionReportingService restitutionReportingService;
 
     @PostMapping
     public SiteResponseDto createSite(@RequestBody SiteRequestDto siteRequest) {
@@ -46,5 +49,12 @@ public class SiteController {
     @GetMapping("/{id}/vehicules")
     public List<VehiculeResponseDto> getVehiculesBySite(@PathVariable Long id) {
         return vehiculeService.getVehiculesBySite(id);
+    }
+
+    @GetMapping("/{id}/kilometrage")
+    public KilometrageSiteResponseDto getKilometrageParSite(
+            @PathVariable Long id,
+            @RequestParam(required = false) String mois) {
+        return restitutionReportingService.getKilometrageParSite(id, mois);
     }
 }
