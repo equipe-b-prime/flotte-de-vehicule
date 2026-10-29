@@ -3,6 +3,8 @@ package com.flottevehicule.flottevehicule.exception;
 import com.flottevehicule.flottevehicule.utils.response.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -31,6 +33,22 @@ public class GlobalException {
     public ResponseEntity<Response<Void>> handleRequeteInvalide(RequeteInvalideException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Response.error(e.getMessage()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Response<Void>> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Response.error("Corps JSON illisible ou mal formaté"));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Response<Void>> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
+        String message = e.getBindingResult().getFieldErrors().stream()
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("Validation échouée");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Response.error(message));
     }
 
     @ExceptionHandler(IllegalStateException.class)
