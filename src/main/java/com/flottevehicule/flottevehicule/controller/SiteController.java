@@ -3,17 +3,18 @@ package com.flottevehicule.flottevehicule.controller;
 import com.flottevehicule.flottevehicule.dto.SiteRequestDto;
 import com.flottevehicule.flottevehicule.dto.SiteResponseDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeResponseDto;
+import com.flottevehicule.flottevehicule.service.SiteService;
+import com.flottevehicule.flottevehicule.service.VehiculeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import com.flottevehicule.flottevehicule.service.SiteService;
-import com.flottevehicule.flottevehicule.service.VehiculeService;
 
 @RestController
 @RequestMapping("/sites")
 @RequiredArgsConstructor
 public class SiteController {
+
     private final SiteService siteService;
     private final VehiculeService vehiculeService;
 
@@ -22,14 +23,14 @@ public class SiteController {
         return siteService.createSite(siteRequest);
     }
 
-    @GetMapping("/{id}")
-    public SiteResponseDto getSiteById(@PathVariable Long id) {
-        return siteService.getSiteById(id);
-    }
-
     @GetMapping
     public List<SiteResponseDto> getAllSites() {
         return siteService.getAllSites();
+    }
+
+    @GetMapping("/{id}")
+    public SiteResponseDto getSiteById(@PathVariable Long id) {
+        return siteService.getSiteById(id);
     }
 
     @PutMapping("/{id}")

@@ -3,17 +3,18 @@ package com.flottevehicule.flottevehicule.controller;
 import com.flottevehicule.flottevehicule.dto.AffectationResponseDto;
 import com.flottevehicule.flottevehicule.dto.SalarieRequestDto;
 import com.flottevehicule.flottevehicule.dto.SalarieResponseDto;
+import com.flottevehicule.flottevehicule.service.AffectationService;
+import com.flottevehicule.flottevehicule.service.SalarieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import com.flottevehicule.flottevehicule.service.AffectationService;
-import com.flottevehicule.flottevehicule.service.SalarieService;
 
 @RestController
 @RequestMapping("/salaries")
 @RequiredArgsConstructor
 public class SalarieController {
+
     private final SalarieService salarieService;
     private final AffectationService affectationService;
 
@@ -22,14 +23,14 @@ public class SalarieController {
         return salarieService.createSalarie(salarieRequest);
     }
 
-    @GetMapping("/{id}")
-    public SalarieResponseDto getSalarieById(@PathVariable Long id) {
-        return salarieService.getSalarieById(id);
-    }
-
     @GetMapping
     public List<SalarieResponseDto> getAllSalaries() {
         return salarieService.getAllSalaries();
+    }
+
+    @GetMapping("/{id}")
+    public SalarieResponseDto getSalarieById(@PathVariable Long id) {
+        return salarieService.getSalarieById(id);
     }
 
     @PutMapping("/{id}")

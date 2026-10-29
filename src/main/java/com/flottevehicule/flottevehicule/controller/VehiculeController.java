@@ -4,17 +4,18 @@ import com.flottevehicule.flottevehicule.dto.EntretienResponseDto;
 import com.flottevehicule.flottevehicule.dto.ProchainEntretienResponseDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeRequestDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeResponseDto;
+import com.flottevehicule.flottevehicule.service.EntretienService;
+import com.flottevehicule.flottevehicule.service.VehiculeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import com.flottevehicule.flottevehicule.service.EntretienService;
-import com.flottevehicule.flottevehicule.service.VehiculeService;
 
 @RestController
 @RequestMapping("/vehicules")
 @RequiredArgsConstructor
 public class VehiculeController {
+
     private final VehiculeService vehiculeService;
     private final EntretienService entretienService;
 
@@ -23,19 +24,19 @@ public class VehiculeController {
         return vehiculeService.createVehicule(vehiculeRequest);
     }
 
-    @GetMapping("/{id}")
-    public VehiculeResponseDto getVehiculeById(@PathVariable Long id) {
-        return vehiculeService.getVehiculeById(id);
-    }
-
     @GetMapping
     public List<VehiculeResponseDto> getAllVehicules(
             @RequestParam(required = false) String immatriculation,
             @RequestParam(required = false) String marque) {
-        if (immatriculation != null && !immatriculation.isEmpty() || marque != null && !marque.isEmpty()) {
+        if ((immatriculation != null && !immatriculation.isBlank()) || (marque != null && !marque.isBlank())) {
             return vehiculeService.searchVehicules(immatriculation, marque);
         }
         return vehiculeService.getAllVehicules();
+    }
+
+    @GetMapping("/{id}")
+    public VehiculeResponseDto getVehiculeById(@PathVariable Long id) {
+        return vehiculeService.getVehiculeById(id);
     }
 
     @PutMapping("/{id}")

@@ -15,6 +15,10 @@ import org.springframework.data.domain.Pageable;
 import com.flottevehicule.flottevehicule.repository.TypeEntretienRepository;
 import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -96,6 +100,18 @@ public class EntretienService {
 
     public List<EntretienResponseDto> getAllEntretiens() {
         return entretienRepository.findAllByOrderByDateInterventionDesc().stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public Page<EntretienResponseDto> getAllEntretiensPagine(Pageable pageable) {
+        int size = Math.min(pageable.getPageSize(), 100);
+        Pageable pageableLimite = PageRequest.of(pageable.getPageNumber(), size, pageable.getSortOr(Sort.by(Sort.Direction.DESC, "dateIntervention")));
+        return entretienRepository.findAll(pageableLimite).map(this::toDto);
+    }
+
+    public List<EntretienResponseDto> getEntretiensByVehicule(Long vehiculeId) {
+        return entretienRepository.findByVehiculeIdOrderByDateInterventionDesc(vehiculeId).stream()
                 .map(this::toDto)
                 .toList();
     }
