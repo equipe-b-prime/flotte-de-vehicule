@@ -23,4 +23,5 @@ public class VehiculeResponseDto {
     private LocalDateTime dateMiseEnCirculation;
     private SiteResponseDto site;
     private ContratResponseDto contrat;
+    private EtatAffectationResponseDto etatAffectation;
 }

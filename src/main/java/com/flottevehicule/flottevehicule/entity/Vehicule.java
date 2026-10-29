@@ -34,6 +34,10 @@ public class Vehicule {
     @JoinColumn(name = "contrat_id")
     private Contrat contrat;
 
+    @ManyToOne
+    @JoinColumn(name = "etat_affectation_id")
+    private EtatAffectation etatAffectation;
+
     @Column(name = "kilometrage_actuel")
     private Integer kilometrageActuel;
 }

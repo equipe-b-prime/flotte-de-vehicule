@@ -1,21 +1,15 @@
 package com.flottevehicule.flottevehicule.service;
 
+import com.flottevehicule.flottevehicule.dto.EtatAffectationResponseDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeRequestDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeResponseDto;
 import com.flottevehicule.flottevehicule.dto.ProchainEntretienResponseDto;
-import com.flottevehicule.flottevehicule.entity.Contrat;
-import com.flottevehicule.flottevehicule.entity.Entretien;
-import com.flottevehicule.flottevehicule.entity.Site;
-import com.flottevehicule.flottevehicule.entity.Vehicule;
+import com.flottevehicule.flottevehicule.entity.*;
 import com.flottevehicule.flottevehicule.exception.DoublonRessourceException;
 import com.flottevehicule.flottevehicule.exception.NotFoundException;
 import com.flottevehicule.flottevehicule.exception.RequeteInvalideException;
 import com.flottevehicule.flottevehicule.exception.RessourceUtiliseeException;
-import com.flottevehicule.flottevehicule.repository.AffectationRepository;
-import com.flottevehicule.flottevehicule.repository.ContratRepository;
-import com.flottevehicule.flottevehicule.repository.EntretienRepository;
-import com.flottevehicule.flottevehicule.repository.SiteRepository;
-import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
+import com.flottevehicule.flottevehicule.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,8 +29,32 @@ public class VehiculeService {
     private final SiteService siteService;
     private final AffectationRepository affectationRepository;
     private final EntretienRepository entretienRepository;
+    private final EtatAffectationRepository etatAffectationRepository;
+
+    public EtatAffectationResponseDto toDto(EtatAffectation etat) {
+        if (etat == null) return null;
+        return EtatAffectationResponseDto.builder()
+                .id(etat.getId())
+                .code(etat.getCode())
+                .libelle(etat.getLibelle())
+                .build();
+    }
 
     public VehiculeResponseDto toDto(Vehicule vehicule) {
+        EtatAffectation etat = vehicule.getEtatAffectation();
+        if (etat == null && vehicule.getId() != null) {
+            LocalDateTime now = LocalDateTime.now();
+            boolean estAffecte = affectationRepository.findByVehiculeIdOrderByDateDebutDesc(vehicule.getId()).stream()
+                    .anyMatch(a -> a.getDateDebut() != null && !a.getDateDebut().isAfter(now)
+                            && (a.getDateFin() == null || a.getDateFin().isAfter(now)));
+            String code = estAffecte ? "AFFECTE" : "DISPONIBLE";
+            etat = etatAffectationRepository.findByCode(code)
+                    .orElseGet(() -> etatAffectationRepository.save(EtatAffectation.builder()
+                            .code(code)
+                            .libelle(estAffecte ? "Affecté" : "Disponible")
+                            .build()));
+        }
+
         return VehiculeResponseDto.builder()
                 .id(vehicule.getId())
                 .nom(vehicule.getNom())
@@ -46,6 +64,7 @@ public class VehiculeService {
                 .dateMiseEnCirculation(vehicule.getDateMiseEnCirculation())
                 .site(siteService.toDto(vehicule.getSite()))
                 .contrat(contratService.toDto(vehicule.getContrat()))
+                .etatAffectation(toDto(etat))
                 .build();
     }
 

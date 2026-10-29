@@ -5,7 +5,8 @@
 # Auteur: Analyse Automatique
 # =============================================================================
 
-BASE_URL="http://localhost:8080"
+PORT=${PORT:-8090}
+BASE_URL="http://localhost:$PORT"
 ERRORS=0
 
 # Couleurs pour la sortie
