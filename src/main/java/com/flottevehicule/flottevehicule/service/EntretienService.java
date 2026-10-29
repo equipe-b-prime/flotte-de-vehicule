@@ -10,15 +10,11 @@ import com.flottevehicule.flottevehicule.exception.NotFoundException;
 import com.flottevehicule.flottevehicule.exception.RequeteInvalideException;
 import com.flottevehicule.flottevehicule.repository.EntretienRepository;
 import com.flottevehicule.flottevehicule.repository.PrestataireRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import com.flottevehicule.flottevehicule.repository.TypeEntretienRepository;
 import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -33,8 +29,6 @@ public class EntretienService {
     private final VehiculeRepository vehiculeRepository;
     private final TypeEntretienRepository typeEntretienRepository;
     private final PrestataireRepository prestataireRepository;
-    private final SiteService siteService;
-    private final ContratService contratService;
     private final PrestataireService prestataireService;
     private final TypeEntretienService typeEntretienService;
     private final VehiculeService vehiculeService;
@@ -104,13 +98,13 @@ public class EntretienService {
                 .toList();
     }
 
-    public Page<EntretienResponseDto> getAllEntretiensPagine(Pageable pageable) {
-        int size = Math.min(pageable.getPageSize(), 100);
-        Pageable pageableLimite = PageRequest.of(pageable.getPageNumber(), size, pageable.getSortOr(Sort.by(Sort.Direction.DESC, "dateIntervention")));
-        return entretienRepository.findAll(pageableLimite).map(this::toDto);
+    public Page<EntretienResponseDto> getAllEntretiensPaginated(Pageable pageable) {
+        return entretienRepository.findAll(pageable).map(this::toDto);
     }
 
     public List<EntretienResponseDto> getEntretiensByVehicule(Long vehiculeId) {
+        vehiculeRepository.findById(vehiculeId)
+                .orElseThrow(() -> new NotFoundException("Véhicule non trouvé avec l'id " + vehiculeId));
         return entretienRepository.findByVehiculeIdOrderByDateInterventionDesc(vehiculeId).stream()
                 .map(this::toDto)
                 .toList();
@@ -133,18 +127,5 @@ public class EntretienService {
                 .orElseThrow(() -> new NotFoundException("Entretien non trouvé avec l'id " + id));
         entretienRepository.deleteById(id);
         return toDto(entretien);
-    }
-
-
-    public List<EntretienResponseDto> getEntretiensByVehicule(Long vehiculeId) {
-        vehiculeRepository.findById(vehiculeId)
-                .orElseThrow(() -> new NotFoundException("Véhicule non trouvé avec l'id " + vehiculeId));
-        return entretienRepository.findByVehiculeIdOrderByDateInterventionDesc(vehiculeId).stream()
-                .map(this::toDto)
-                .toList();
-    }
-
-    public Page<EntretienResponseDto> getAllEntretiensPaginated(Pageable pageable) {
-        return entretienRepository.findAll(pageable).map(this::toDto);
     }
 }
