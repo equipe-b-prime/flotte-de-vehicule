@@ -163,8 +163,8 @@ public class EntretienService {
      */
     @Scheduled(cron = "0 0 2 * * ?")
     public void tachePlanifieeNocturneEntretiensDus() {
-        log.info("[SCHEDULED F16] Démarrage du contrôle nocturne des entretiens dus...");
-        Map<String, AlerteSiteDto> alertes = ();
+        log.info("[SCHEDULED F16] Démarrage du contrôle des entretiens dus (toutes les 10s)...");
+        Map<String, AlerteSiteDto> alertes = executerDetectionAlertes();
         log.info("[SCHEDULED F16] Contrôle terminé. Sites avec alertes : {}", alertes.size());
     }
 
