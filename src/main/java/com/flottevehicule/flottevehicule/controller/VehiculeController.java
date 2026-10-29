@@ -28,10 +28,7 @@ public class VehiculeController {
     public List<VehiculeResponseDto> getAllVehicules(
             @RequestParam(required = false) String immatriculation,
             @RequestParam(required = false) String marque) {
-        if ((immatriculation != null && !immatriculation.isBlank()) || (marque != null && !marque.isBlank())) {
-            return vehiculeService.searchVehicules(immatriculation, marque);
-        }
-        return vehiculeService.getAllVehicules();
+        return vehiculeService.searchVehicules(immatriculation, marque);
     }
 
     @GetMapping("/{id}")

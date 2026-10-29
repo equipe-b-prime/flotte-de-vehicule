@@ -14,7 +14,9 @@ import com.flottevehicule.flottevehicule.repository.TypeEntretienRepository;
 import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -98,7 +100,15 @@ public class EntretienService {
                 .toList();
     }
 
-    public Page<EntretienResponseDto> getAllEntretiensPaginated(Pageable pageable) {
+    public Page<EntretienResponseDto> getAllEntretiensPaginated(int page, int size, String sort) {
+        if (size > 100) size = 100;
+        if (size <= 0) size = 20;
+        if (page < 0) page = 0;
+
+        String[] sortParts = (sort != null && !sort.isBlank()) ? sort.split(",") : new String[]{"dateIntervention", "desc"};
+        Sort.Direction direction = sortParts.length > 1 && sortParts[1].equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParts[0]));
+
         return entretienRepository.findAll(pageable).map(this::toDto);
     }
 
