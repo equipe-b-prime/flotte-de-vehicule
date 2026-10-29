@@ -1,9 +1,11 @@
 package com.flottevehicule.flottevehicule.service;
 
+import com.flottevehicule.flottevehicule.dto.AlerteSiteDto;
 import com.flottevehicule.flottevehicule.dto.EntretienRequestDto;
 import com.flottevehicule.flottevehicule.dto.EntretienResponseDto;
 import com.flottevehicule.flottevehicule.entity.Entretien;
 import com.flottevehicule.flottevehicule.entity.Prestataire;
+import com.flottevehicule.flottevehicule.entity.Site;
 import com.flottevehicule.flottevehicule.entity.TypeEntretien;
 import com.flottevehicule.flottevehicule.entity.Vehicule;
 import com.flottevehicule.flottevehicule.exception.NotFoundException;
@@ -13,17 +15,22 @@ import com.flottevehicule.flottevehicule.repository.PrestataireRepository;
 import com.flottevehicule.flottevehicule.repository.TypeEntretienRepository;
 import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class EntretienService {
 
@@ -34,6 +41,9 @@ public class EntretienService {
     private final PrestataireService prestataireService;
     private final TypeEntretienService typeEntretienService;
     private final VehiculeService vehiculeService;
+
+    // F16 : Traçabilité mémoire pour éviter de resignaler le même véhicule avant son prochain entretien
+    private final Set<Long> vehiculesSignales = ConcurrentHashMap.newKeySet();
 
     public EntretienResponseDto toDto(Entretien entretien) {
         return EntretienResponseDto.builder()
@@ -141,5 +151,105 @@ public class EntretienService {
                 .orElseThrow(() -> new NotFoundException("Entretien non trouvé avec l'id " + id));
         entretienRepository.deleteById(id);
         return toDto(entretien);
+    }
+
+    /**
+     * F16. Signaler les entretienexecuterDetectionAlertess dus.
+     * Déclencheur : tâche planifiée, exécutée chaque nuit.
+     * Règle : un véhicule est signalé s'il est à moins de 1 000 km ou moins de trente jours de son échéance,
+     * ou s'il l'a déjà dépassée.
+     * Effet : une alerte est produite par site, avec le véhicule, l'échéance et l'écart.
+     * Traçabilité : un véhicule déjà signalé n'est pas signalé une seconde fois avant son entretien.
+     */
+    @Scheduled(cron = "0 0 2 * * ?")
+    public void tachePlanifieeNocturneEntretiensDus() {
+        log.info("[SCHEDULED F16] Démarrage du contrôle nocturne des entretiens dus...");
+        Map<String, AlerteSiteDto> alertes = ();
+        log.info("[SCHEDULED F16] Contrôle terminé. Sites avec alertes : {}", alertes.size());
+    }
+
+    public Map<String, AlerteSiteDto> executerDetectionAlertes() {
+        List<Vehicule> vehicules = vehiculeRepository.findAll();
+        Map<String, AlerteSiteDto> resultatsParSite = new LinkedHashMap<>();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Vehicule v : vehicules) {
+            Optional<Entretien> dernierEntretien = entretienRepository
+                    .findByVehiculeIdOrderByDateInterventionDesc(v.getId())
+                    .stream().findFirst();
+
+            LocalDateTime pointDepart;
+            int kilometrageDepart;
+
+            if (dernierEntretien.isPresent() && dernierEntretien.get().getTypeEntretien() != null
+                    && Boolean.TRUE.equals(dernierEntretien.get().getTypeEntretien().getEstRegulier())) {
+                pointDepart = dernierEntretien.get().getDateIntervention();
+                kilometrageDepart = dernierEntretien.get().getKilometrage() != null ?
+                        dernierEntretien.get().getKilometrage().intValue() : 0;
+            } else {
+                pointDepart = v.getDateMiseEnCirculation() != null ? v.getDateMiseEnCirculation() : now;
+                kilometrageDepart = 0;
+            }
+
+            LocalDateTime echeanceDate = pointDepart.plusYears(1);
+            int kmCible = kilometrageDepart + 15000;
+            int kmActuel = v.getKilometrageActuel() != null ? v.getKilometrageActuel() : 0;
+
+            long ecartJours = ChronoUnit.DAYS.between(now, echeanceDate);
+            int ecartKm = kmCible - kmActuel;
+
+            boolean depasseDate = now.isAfter(echeanceDate);
+            boolean depasseKm = kmActuel >= kmCible;
+            boolean procheDate = ecartJours <= 30 && ecartJours >= 0;
+            boolean procheKm = ecartKm <= 1000 && ecartKm >= 0;
+
+            if (depasseDate || depasseKm || procheDate || procheKm) {
+                // Traçabilité : ne pas resignaler si déjà signalé avant son entretien
+                if (vehiculesSignales.contains(v.getId())) {
+                    continue;
+                }
+
+                String statut;
+                if (depasseDate || depasseKm) {
+                    statut = "DEPASSE";
+                } else if (procheDate) {
+                    statut = "IMMINENT_DATE";
+                } else {
+                    statut = "IMMINENT_KM";
+                }
+
+                vehiculesSignales.add(v.getId());
+
+                Site site = v.getSite();
+                String siteCle = (site != null) ? site.getNom() : "Non assigné";
+                Long siteId = (site != null) ? site.getId() : null;
+
+                AlerteSiteDto siteDto = resultatsParSite.computeIfAbsent(siteCle, k -> AlerteSiteDto.builder()
+                        .siteId(siteId)
+                        .nomSite(siteCle)
+                        .alertes(new ArrayList<>())
+                        .build());
+
+                siteDto.getAlertes().add(AlerteSiteDto.AlerteVehiculeDto.builder()
+                        .vehiculeId(v.getId())
+                        .immatriculation(v.getImmatriculation())
+                        .marque(v.getMarque())
+                        .modele(v.getModele())
+                        .echeanceDate(echeanceDate)
+                        .echeanceKm(kmCible)
+                        .ecartJours(ecartJours)
+                        .ecartKm(ecartKm)
+                        .statut(statut)
+                        .build());
+
+                log.warn("[ALERTE ENTRETIEN] Site: {} | Véhicule: {} ({}) | Statut: {} | Écart jours: {} | Écart km: {}",
+                        siteCle, v.getImmatriculation(), v.getMarque(), statut, ecartJours, ecartKm);
+            } else {
+                // Si le véhicule est de nouveau en règle (ex: entretien réalisé), réinitialiser
+                vehiculesSignales.remove(v.getId());
+            }
+        }
+
+        return resultatsParSite;
     }
 }
