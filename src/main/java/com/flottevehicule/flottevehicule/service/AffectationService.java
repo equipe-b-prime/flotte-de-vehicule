@@ -58,6 +58,17 @@ public class AffectationService {
             throw new RequeteInvalideException("La date de début ne peut pas précéder la mise en service du véhicule");
         }
 
+        // F11 — Empêcher le chevauchement d'affectations sur le même véhicule
+        List<Affectation> chevauchements = affectationRepository.findChevauchements(
+                vehicule.getId(), debut, affectationRequest.getDateFin());
+        if (!chevauchements.isEmpty()) {
+            Affectation bloquante = chevauchements.get(0);
+            String nomSalarie = bloquante.getSalarie().getNom() + " " + bloquante.getSalarie().getPrenom();
+            throw new RessourceUtiliseeException(
+                    "Chevauchement avec l'affectation #" + bloquante.getId() +
+                    " (salarié : " + nomSalarie + ")");
+        }
+
         return toDto(affectationRepository.save(toEntity(affectationRequest, salarie, vehicule)));
     }
 
