@@ -1,0 +1,1700 @@
+{
+  "info": {
+    "_postman_id": "b1234567-c890-4d12-8345-6789abcdef01",
+    "name": "ZKANTAPI — Flotte de Véhicules (Niveaux 1 à 4)",
+    "description": "Collection Postman complète pour le Projet — Gestion de Flotte de Véhicules (F1 à F19) générée à partir des scripts de test test_crud_niveau1_complet.sh, test_curl_niveau2.sh et test_niveaux_3_4.sh.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8090",
+      "type": "string"
+    },
+    {
+      "key": "siteId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "vehiculeId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "salarieId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "affectationId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "entretienId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "NIVEAU 1 — LE CRUD (test_crud_niveau1_complet.sh : F1 à F5)",
+      "item": [
+        {
+          "name": "F1. Gérer les sites",
+          "item": [
+            {
+              "name": "F1 - Créer un site valide",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sites",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites"
+                  ]
+                },
+                "description": "Création d'un site valide",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nom\": \"Site Alpha\",\n  \"ville\": \"Lyon\",\n  \"adresse\": \"10 rue des Fleurs\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F1 - Créer un site — Doublon nom (409)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sites",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites"
+                  ]
+                },
+                "description": "Unicité du nom du site (doublon interdit -> 409)",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nom\": \"Site Alpha\",\n  \"ville\": \"Paris\",\n  \"adresse\": \"20 rue Blanche\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F1 - Lister les sites (triés par ville puis nom)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sites",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites"
+                  ]
+                },
+                "description": "Consultation de la liste des sites triée par ville puis par nom"
+              },
+              "response": []
+            },
+            {
+              "name": "F1 - Consulter un site par ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sites/{{siteId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites",
+                    "{{siteId}}"
+                  ]
+                },
+                "description": "Consultation d'un site existant"
+              },
+              "response": []
+            },
+            {
+              "name": "F1 - Consulter un site inconnu (404)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sites/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites",
+                    "999999"
+                  ]
+                },
+                "description": "Identifiant inconnu renvoie 404"
+              },
+              "response": []
+            },
+            {
+              "name": "F1 - Modifier ville et adresse d'un site",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sites/{{siteId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites",
+                    "{{siteId}}"
+                  ]
+                },
+                "description": "Modification de la ville et de l'adresse",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nom\": \"Site Alpha\",\n  \"ville\": \"Lyon Modifié\",\n  \"adresse\": \"99 av de Saxe\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F1 - Supprimer un site ayant des véhicules (409)",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sites/{{siteId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites",
+                    "{{siteId}}"
+                  ]
+                },
+                "description": "Suppression refusée si des véhicules sont rattachés au site (409)"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F2. Gérer les véhicules",
+          "item": [
+            {
+              "name": "F2 - Créer un véhicule valide",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules"
+                  ]
+                },
+                "description": "Création d'un véhicule valide",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"immatriculation\": \"AA-1001-XX\",\n  \"marque\": \"Peugeot\",\n  \"modele\": \"208\",\n  \"nom\": \"P208\",\n  \"dateMiseEnCirculation\": \"01-01-2022 10:00:00\",\n  \"siteId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F2 - Créer un véhicule — Date mise en circulation future (400)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules"
+                  ]
+                },
+                "description": "Date de mise en service dans le futur interdite -> 400",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"immatriculation\": \"AA-2099-XX\",\n  \"marque\": \"Peugeot\",\n  \"modele\": \"208\",\n  \"nom\": \"P208\",\n  \"dateMiseEnCirculation\": \"01-01-2099 00:00:00\",\n  \"siteId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F2 - Créer un véhicule — Immatriculation doublon (409)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules"
+                  ]
+                },
+                "description": "Immatriculation unique (doublon interdit -> 409)",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"immatriculation\": \"AA-1001-XX\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"nom\": \"Clio\",\n  \"dateMiseEnCirculation\": \"01-01-2022 10:00:00\",\n  \"siteId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F2 - Lister tous les véhicules",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules"
+                  ]
+                },
+                "description": "Consultation de la liste des véhicules"
+              },
+              "response": []
+            },
+            {
+              "name": "F2 - Consulter un véhicule par ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/{{vehiculeId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "{{vehiculeId}}"
+                  ]
+                },
+                "description": "Détails d'un véhicule existant"
+              },
+              "response": []
+            },
+            {
+              "name": "F2 - Consulter un véhicule inconnu (404)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "999999"
+                  ]
+                },
+                "description": "Identifiant inconnu renvoie 404"
+              },
+              "response": []
+            },
+            {
+              "name": "F2 - Modifier / transférer le site d'un véhicule",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/{{vehiculeId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "{{vehiculeId}}"
+                  ]
+                },
+                "description": "Transfert de site (immatriculation et date de mise en circulation figées)",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"siteId\": 1,\n  \"immatriculation\": \"TENTATIVE_CHANGE\",\n  \"dateMiseEnCirculation\": \"01-01-2000 00:00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F2 - Supprimer un véhicule ayant des affectations/entretiens (409)",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/{{vehiculeId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "{{vehiculeId}}"
+                  ]
+                },
+                "description": "Suppression refusée si le véhicule a des affectations ou entretiens (409)"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F3. Gérer les salariés",
+          "item": [
+            {
+              "name": "F3 - Créer un salarié valide",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/salaries",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salaries"
+                  ]
+                },
+                "description": "Création d'un salarié valide",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nom\": \"Dupont\",\n  \"prenom\": \"Jean\",\n  \"matricule\": \"MAT-1001\",\n  \"service\": \"Technique\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F3 - Créer un salarié — Matricule doublon (409)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/salaries",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salaries"
+                  ]
+                },
+                "description": "Matricule unique (doublon interdit -> 409)",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nom\": \"Martin\",\n  \"prenom\": \"Sophie\",\n  \"matricule\": \"MAT-1001\",\n  \"service\": \"RH\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F3 - Lister les salariés",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/salaries",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salaries"
+                  ]
+                },
+                "description": "Consultation de la liste des salariés"
+              },
+              "response": []
+            },
+            {
+              "name": "F3 - Consulter un salarié par ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/salaries/{{salarieId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salaries",
+                    "{{salarieId}}"
+                  ]
+                },
+                "description": "Détails d'un salarié"
+              },
+              "response": []
+            },
+            {
+              "name": "F3 - Consulter un salarié inconnu (404)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/salaries/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salaries",
+                    "999999"
+                  ]
+                },
+                "description": "Identifiant inconnu renvoie 404"
+              },
+              "response": []
+            },
+            {
+              "name": "F3 - Modifier le service d'un salarié",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/salaries/{{salarieId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salaries",
+                    "{{salarieId}}"
+                  ]
+                },
+                "description": "Modification du service (matricule figé)",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"service\": \"Informatique\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F3 - Supprimer un salarié ayant une affectation en cours (409)",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/salaries/{{salarieId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salaries",
+                    "{{salarieId}}"
+                  ]
+                },
+                "description": "Suppression refusée si affectation en cours (409)"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F4. Gérer les affectations",
+          "item": [
+            {
+              "name": "F4 - Créer une affectation active",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations"
+                  ]
+                },
+                "description": "Création d'une affectation valide",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"salarieId\": 1,\n  \"dateDebut\": \"01-01-2023 00:00:00\",\n  \"dateFin\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F4 - Créer une affectation future",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations"
+                  ]
+                },
+                "description": "Création d'une affectation future",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"salarieId\": 1,\n  \"dateDebut\": \"01-01-2090 00:00:00\",\n  \"dateFin\": \"01-02-2090 00:00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F4 - Créer une affectation — Date début avant mise en circulation (400)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations"
+                  ]
+                },
+                "description": "Date de début antérieure à la mise en circulation du véhicule -> 400",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"salarieId\": 1,\n  \"dateDebut\": \"01-01-2020 00:00:00\",\n  \"dateFin\": \"01-06-2020 00:00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F4 - Créer une affectation — Chevauchement (409)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations"
+                  ]
+                },
+                "description": "Chevauchement d'affectation sur le même véhicule -> 409",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"salarieId\": 1,\n  \"dateDebut\": \"15-01-2090 00:00:00\",\n  \"dateFin\": \"15-02-2090 00:00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F4 - Consulter une affectation par ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations/{{affectationId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations",
+                    "{{affectationId}}"
+                  ]
+                },
+                "description": "Détails d'une affectation"
+              },
+              "response": []
+            },
+            {
+              "name": "F4 - Consulter une affectation inconnue (404)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations",
+                    "999999"
+                  ]
+                },
+                "description": "Identifiant inconnu renvoie 404"
+              },
+              "response": []
+            },
+            {
+              "name": "F4 - Supprimer une affectation déjà commencée (409)",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations/{{affectationId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations",
+                    "{{affectationId}}"
+                  ]
+                },
+                "description": "Suppression d'une affectation commencée refusée -> 409"
+              },
+              "response": []
+            },
+            {
+              "name": "F4 - Restituer et clôturer une affectation",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations/{{affectationId}}/restitution",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations",
+                    "{{affectationId}}",
+                    "restitution"
+                  ]
+                },
+                "description": "Restitution et clôture de l'affectation avec kilométrage",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"dateRestitution\": \"01-06-2023 18:00:00\",\n  \"kilometrage\": 12500\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F5. Gérer les entretiens",
+          "item": [
+            {
+              "name": "F5 - Créer un entretien valide",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens"
+                  ]
+                },
+                "description": "Création d'un entretien valide",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"typeEntretienId\": 1,\n  \"prestataireId\": 1,\n  \"dateIntervention\": \"01-07-2023 10:00:00\",\n  \"cout\": 250.5,\n  \"dureeImmobilisatin\": 2,\n  \"kilometrage\": 20000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F5 - Créer un entretien — Coût négatif ou nul (400)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens"
+                  ]
+                },
+                "description": "Coût négatif ou nul refusé -> 400",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"typeEntretienId\": 1,\n  \"prestataireId\": 1,\n  \"dateIntervention\": \"01-07-2023 10:00:00\",\n  \"cout\": -50,\n  \"dureeImmobilisatin\": 1,\n  \"kilometrage\": 15000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F5 - Créer un entretien — Date avant mise en service (400)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens"
+                  ]
+                },
+                "description": "Date d'entretien antérieure à la mise en service refusée -> 400",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"typeEntretienId\": 1,\n  \"prestataireId\": 1,\n  \"dateIntervention\": \"01-01-2020 10:00:00\",\n  \"cout\": 150,\n  \"dureeImmobilisatin\": 1,\n  \"kilometrage\": 15000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F5 - Créer un entretien — Kilométrage décroissant (400)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens"
+                  ]
+                },
+                "description": "Kilométrage inférieur au dernier connu refusé -> 400",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"typeEntretienId\": 1,\n  \"prestataireId\": 1,\n  \"dateIntervention\": \"05-07-2023 10:00:00\",\n  \"cout\": 100,\n  \"dureeImmobilisatin\": 1,\n  \"kilometrage\": 18000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "F5 - Consulter un entretien par ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens/{{entretienId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens",
+                    "{{entretienId}}"
+                  ]
+                },
+                "description": "Détails d'un entretien"
+              },
+              "response": []
+            },
+            {
+              "name": "F5 - Consulter un entretien inconnu (404)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens/999999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens",
+                    "999999"
+                  ]
+                },
+                "description": "Identifiant inconnu renvoie 404"
+              },
+              "response": []
+            },
+            {
+              "name": "F5 - Modifier le coût et le prestataire d'un entretien",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens/{{entretienId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens",
+                    "{{entretienId}}"
+                  ]
+                },
+                "description": "Modification du coût et du prestataire",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"cout\": 320.0,\n  \"prestataireId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "NIVEAU 2 — CONSULTATION ET RECHERCHE (test_curl_niveau2.sh : F6 à F10)",
+      "item": [
+        {
+          "name": "F6. Lister les véhicules d'un site",
+          "item": [
+            {
+              "name": "F6 - Véhicules d'un site existant",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sites/{{siteId}}/vehicules",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites",
+                    "{{siteId}}",
+                    "vehicules"
+                  ]
+                },
+                "description": "Liste des véhicules rattachés au site"
+              },
+              "response": []
+            },
+            {
+              "name": "F6 - Site inconnu (404)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sites/999/vehicules",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites",
+                    "999",
+                    "vehicules"
+                  ]
+                },
+                "description": "Identifiant de site inconnu renvoie 404"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F7. Consulter les affectations d'un salarié",
+          "item": [
+            {
+              "name": "F7 - Affectations d'un salarié existant",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/salaries/{{salarieId}}/affectations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salaries",
+                    "{{salarieId}}",
+                    "affectations"
+                  ]
+                },
+                "description": "Liste des affectations du salarié avec affectation en cours signalée"
+              },
+              "response": []
+            },
+            {
+              "name": "F7 - Salarié inconnu (404)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/salaries/9999/affectations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "salaries",
+                    "9999",
+                    "affectations"
+                  ]
+                },
+                "description": "Identifiant de salarié inconnu renvoie 404"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F8. Consulter l'historique d'entretien d'un véhicule",
+          "item": [
+            {
+              "name": "F8 - Historique d'entretien d'un véhicule",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/{{vehiculeId}}/entretiens",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "{{vehiculeId}}",
+                    "entretiens"
+                  ]
+                },
+                "description": "Historique des entretiens trié par date décroissante avec coût cumulé"
+              },
+              "response": []
+            },
+            {
+              "name": "F8 - Véhicule inconnu (404)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/9999/entretiens",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "9999",
+                    "entretiens"
+                  ]
+                },
+                "description": "Identifiant de véhicule inconnu renvoie 404"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F9. Rechercher un véhicule",
+          "item": [
+            {
+              "name": "F9 - Recherche combinée immatriculation + marque",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules?immatriculation=AA-111&marque=Peugeot",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules"
+                  ],
+                  "query": [
+                    {
+                      "key": "immatriculation",
+                      "value": "AA-111"
+                    },
+                    {
+                      "key": "marque",
+                      "value": "Peugeot"
+                    }
+                  ]
+                },
+                "description": "Recherche multicritères (immatriculation + marque)"
+              },
+              "response": []
+            },
+            {
+              "name": "F9 - Recherche par immatriculation partielle / insensible à la casse",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules?immatriculation=aa-100",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules"
+                  ],
+                  "query": [
+                    {
+                      "key": "immatriculation",
+                      "value": "aa-100"
+                    }
+                  ]
+                },
+                "description": "Recherche partielle par immatriculation"
+              },
+              "response": []
+            },
+            {
+              "name": "F9 - Recherche par marque seule",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules?marque=Peugeot",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules"
+                  ],
+                  "query": [
+                    {
+                      "key": "marque",
+                      "value": "Peugeot"
+                    }
+                  ]
+                },
+                "description": "Recherche par marque uniquement"
+              },
+              "response": []
+            },
+            {
+              "name": "F9 - Liste complète sans paramètre",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules"
+                  ]
+                },
+                "description": "Sans paramètre, retourne toute la liste"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F10. Paginer la liste des entretiens",
+          "item": [
+            {
+              "name": "F10 - Pagination avec tri date décroissante",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens?page=0&size=20&sort=date,desc",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "20"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "date,desc"
+                    }
+                  ]
+                },
+                "description": "Page demandée avec totalElements et totalPages"
+              },
+              "response": []
+            },
+            {
+              "name": "F10 - Pagination sans paramètre (20 éléments par défaut)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens"
+                  ]
+                },
+                "description": "Sans paramètre, première page de 20 éléments"
+              },
+              "response": []
+            },
+            {
+              "name": "F10 - Pagination avec size=50 (plafonnée à 100 max)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens?page=0&size=50",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "50"
+                    }
+                  ]
+                },
+                "description": "Taille de page personnalisée"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "NIVEAU 3 — LES RÈGLES MÉTIER (test_niveaux_3_4.sh : F11 à F15)",
+      "item": [
+        {
+          "name": "F11. Empêcher le chevauchement des affectations",
+          "item": [
+            {
+              "name": "F11 - Créer une affectation en conflit de dates (409)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations"
+                  ]
+                },
+                "description": "Refus 409 en cas de chevauchement sur le même véhicule",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"salarieId\": 2,\n  \"dateDebut\": \"05-10-2026 10:00:00\",\n  \"dateFin\": \"10-10-2026 18:00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F12. Refuser une affectation pendant une immobilisation d'entretien",
+          "item": [
+            {
+              "name": "F12 - Affectation pendant immobilisation d'entretien (409)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations"
+                  ]
+                },
+                "description": "Refus 409 si le véhicule est immobilisé pour entretien sur la période",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"salarieId\": 1,\n  \"dateDebut\": \"06-10-2026 08:00:00\",\n  \"dateFin\": \"06-10-2026 17:00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F13. Clôture et restitution d'affectation",
+          "item": [
+            {
+              "name": "F13 - Restituer une affectation déjà clôturée (409)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/affectations/70/restitution",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "affectations",
+                    "70",
+                    "restitution"
+                  ]
+                },
+                "description": "Refus 409 si l'affectation est déjà clôturée",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"dateRestitution\": \"01-06-2023 18:00:00\",\n  \"kilometrage\": 13000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F14. Cohérence du kilométrage croissant",
+          "item": [
+            {
+              "name": "F14 - Entretien avec kilométrage inférieur au dernier connu (400)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/entretiens",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "entretiens"
+                  ]
+                },
+                "description": "Refus 400 si kilométrage < dernier kilométrage connu",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehiculeId\": 1,\n  \"typeEntretienId\": 1,\n  \"prestataireId\": 1,\n  \"dateIntervention\": \"10-10-2026 10:00:00\",\n  \"cout\": 100,\n  \"dureeImmobilisatin\": 1,\n  \"kilometrage\": 1000\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F15. Planifier le prochain entretien",
+          "item": [
+            {
+              "name": "F15 - Consulter le prochain entretien d'un véhicule",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/{{vehiculeId}}/prochain-entretien",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "{{vehiculeId}}",
+                    "prochain-entretien"
+                  ]
+                },
+                "description": "Calcule la prochaine échéance d'entretien du véhicule"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "NIVEAU 4 — LA RESTITUTION (test_niveaux_3_4.sh : F17 à F19)",
+      "item": [
+        {
+          "name": "F17. Lister les véhicules disponibles sur une période",
+          "item": [
+            {
+              "name": "F17 - Véhicules disponibles entre deux dates",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/disponibles?du=01-11-2026 00:00:00&au=05-11-2026 23:59:59",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "disponibles"
+                  ],
+                  "query": [
+                    {
+                      "key": "du",
+                      "value": "01-11-2026 00:00:00"
+                    },
+                    {
+                      "key": "au",
+                      "value": "05-11-2026 23:59:59"
+                    }
+                  ]
+                },
+                "description": "Liste des véhicules disponibles sur la période demandée"
+              },
+              "response": []
+            },
+            {
+              "name": "F17 - Véhicules disponibles par défaut (semaine en cours)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/disponibles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "disponibles"
+                  ]
+                },
+                "description": "Sans paramètre, véhicules disponibles sur la semaine en cours"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F18. Calculer le coût total d'un véhicule",
+          "item": [
+            {
+              "name": "F18 - Coût total et répartition par type d'entretien",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/{{vehiculeId}}/cout",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "{{vehiculeId}}",
+                    "cout"
+                  ]
+                },
+                "description": "Coût cumulé et répartition par type d'entretien"
+              },
+              "response": []
+            },
+            {
+              "name": "F18 - Véhicule inconnu (404)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/vehicules/99999/cout",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "vehicules",
+                    "99999",
+                    "cout"
+                  ]
+                },
+                "description": "Identifiant de véhicule inconnu renvoie 404"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "F19. Mesurer le kilométrage mensuel par site",
+          "item": [
+            {
+              "name": "F19 - Kilométrage mensuel d'un site (mois=2026-04)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sites/{{siteId}}/kilometrage?mois=2026-04",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites",
+                    "{{siteId}}",
+                    "kilometrage"
+                  ],
+                  "query": [
+                    {
+                      "key": "mois",
+                      "value": "2026-04"
+                    }
+                  ]
+                },
+                "description": "Kilométrage total parcouru par les véhicules du site sur le mois donné"
+              },
+              "response": []
+            },
+            {
+              "name": "F19 - Site inconnu (404)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/sites/99999/kilometrage?mois=2026-04",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sites",
+                    "99999",
+                    "kilometrage"
+                  ],
+                  "query": [
+                    {
+                      "key": "mois",
+                      "value": "2026-04"
+                    }
+                  ]
+                },
+                "description": "Identifiant de site inconnu renvoie 404"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
