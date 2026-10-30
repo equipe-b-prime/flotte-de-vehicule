@@ -24,7 +24,6 @@ public class SalarieController {
     private final AffectationService affectationService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Créer un nouveau salarié")
     public SalarieResponseDto createSalarie(@Valid @RequestBody SalarieRequestDto salarieRequest) {
         return salarieService.createSalarie(salarieRequest);

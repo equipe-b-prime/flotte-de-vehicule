@@ -20,7 +20,6 @@ public class EntretienController {
     private final EntretienService entretienService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Enregistrer un nouvel entretien")
     public EntretienResponseDto createEntretien(@Valid @RequestBody EntretienRequestDto entretienRequest) {
         return entretienService.createEntretien(entretienRequest);

@@ -29,7 +29,6 @@ public class VehiculeController {
     private final RestitutionReportingService restitutionReportingService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Créer et enregistrer un nouveau véhicule")
     public VehiculeResponseDto createVehicule(@Valid @RequestBody VehiculeRequestDto vehiculeRequest) {
         return vehiculeService.createVehicule(vehiculeRequest);

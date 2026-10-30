@@ -27,7 +27,6 @@ public class SiteController {
     private final RestitutionReportingService restitutionReportingService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Créer un nouveau site")
     public SiteResponseDto createSite(@Valid @RequestBody SiteRequestDto siteRequest) {
         return siteService.createSite(siteRequest);

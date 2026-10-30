@@ -22,7 +22,6 @@ public class AffectationController {
     private final AffectationService affectationService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Créer une nouvelle affectation")
     public AffectationResponseDto createAffectation(@Valid @RequestBody AffectationRequestDto affectationRequest) {
         return affectationService.createAffectation(affectationRequest);
