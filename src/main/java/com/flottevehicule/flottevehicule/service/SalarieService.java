@@ -1,24 +1,46 @@
 package com.flottevehicule.flottevehicule.service;
 
+import com.flottevehicule.flottevehicule.dto.RequestDto;
+import com.flottevehicule.flottevehicule.dto.ResponseDto;
 import com.flottevehicule.flottevehicule.dto.SalarieRequestDto;
 import com.flottevehicule.flottevehicule.dto.SalarieResponseDto;
 import com.flottevehicule.flottevehicule.entity.Salarie;
 import com.flottevehicule.flottevehicule.exception.DoublonRessourceException;
 import com.flottevehicule.flottevehicule.exception.NotFoundException;
+import com.flottevehicule.flottevehicule.exception.RequeteInvalideException;
 import com.flottevehicule.flottevehicule.exception.RessourceUtiliseeException;
 import com.flottevehicule.flottevehicule.repository.AffectationRepository;
 import com.flottevehicule.flottevehicule.repository.SalarieRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-public class SalarieService {
+public class SalarieService extends AbstractCrudService {
 
     private final SalarieRepository salarieRepository;
     private final AffectationRepository affectationRepository;
+
+    public SalarieService(SalarieRepository salarieRepository, AffectationRepository affectationRepository) {
+        super(salarieRepository);
+        this.salarieRepository = salarieRepository;
+        this.affectationRepository = affectationRepository;
+    }
+
+    @Override
+    public ResponseDto toDto(Object entity) {
+        return toDto((Salarie) entity);
+    }
+
+    @Override
+    public ResponseDto create(RequestDto request) {
+        return createSalarie((SalarieRequestDto) request);
+    }
+
+    @Override
+    public ResponseDto update(Long id, RequestDto request) {
+        return updateSalarieById(id, (SalarieRequestDto) request);
+    }
 
     public SalarieResponseDto toDto(Salarie salarie) {
         return SalarieResponseDto.builder()
@@ -40,6 +62,11 @@ public class SalarieService {
     }
 
     public SalarieResponseDto createSalarie(SalarieRequestDto salarieRequest) {
+        if (salarieRequest.getNom() == null || salarieRequest.getNom().isBlank() ||
+                salarieRequest.getMatricule() == null || salarieRequest.getMatricule().isBlank() ||
+                salarieRequest.getService() == null || salarieRequest.getService().isBlank()) {
+            throw new RequeteInvalideException("Le nom, le matricule et le service sont obligatoires");
+        }
         if (salarieRepository.findByMatricule(salarieRequest.getMatricule()).isPresent()) {
             throw new DoublonRessourceException("Un salarié avec le matricule '" + salarieRequest.getMatricule() + "' existe déjà");
         }

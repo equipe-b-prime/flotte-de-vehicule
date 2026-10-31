@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VehiculeResponseDto {
+public class VehiculeResponseDto implements ResponseDto {
     private Long id;
     private String nom;
     private String immatriculation;

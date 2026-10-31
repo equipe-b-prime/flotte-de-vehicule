@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EntretienResponseDto {
+public class EntretienResponseDto implements ResponseDto {
     private Long id;
     private LocalDateTime dateIntervention;
     private BigDecimal cout;

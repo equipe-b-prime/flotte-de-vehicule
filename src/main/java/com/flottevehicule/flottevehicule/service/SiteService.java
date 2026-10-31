@@ -1,5 +1,7 @@
 package com.flottevehicule.flottevehicule.service;
 
+import com.flottevehicule.flottevehicule.dto.RequestDto;
+import com.flottevehicule.flottevehicule.dto.ResponseDto;
 import com.flottevehicule.flottevehicule.dto.SiteRequestDto;
 import com.flottevehicule.flottevehicule.dto.SiteResponseDto;
 import com.flottevehicule.flottevehicule.entity.Site;
@@ -8,17 +10,36 @@ import com.flottevehicule.flottevehicule.exception.NotFoundException;
 import com.flottevehicule.flottevehicule.exception.RessourceUtiliseeException;
 import com.flottevehicule.flottevehicule.repository.SiteRepository;
 import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-public class SiteService {
+public class SiteService extends AbstractCrudService {
 
     private final SiteRepository siteRepository;
     private final VehiculeRepository vehiculeRepository;
+
+    public SiteService(SiteRepository siteRepository, VehiculeRepository vehiculeRepository) {
+        super(siteRepository);
+        this.siteRepository = siteRepository;
+        this.vehiculeRepository = vehiculeRepository;
+    }
+
+    @Override
+    public ResponseDto toDto(Object entity) {
+        return toDto((Site) entity);
+    }
+
+    @Override
+    public ResponseDto create(RequestDto request) {
+        return createSite((SiteRequestDto) request);
+    }
+
+    @Override
+    public ResponseDto update(Long id, RequestDto request) {
+        return updateSiteById(id, (SiteRequestDto) request);
+    }
 
     public SiteResponseDto toDto(Site site) {
         return SiteResponseDto.builder()

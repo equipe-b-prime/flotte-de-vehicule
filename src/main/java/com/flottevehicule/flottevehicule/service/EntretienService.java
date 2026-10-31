@@ -3,6 +3,8 @@ package com.flottevehicule.flottevehicule.service;
 import com.flottevehicule.flottevehicule.dto.AlerteSiteDto;
 import com.flottevehicule.flottevehicule.dto.EntretienRequestDto;
 import com.flottevehicule.flottevehicule.dto.EntretienResponseDto;
+import com.flottevehicule.flottevehicule.dto.RequestDto;
+import com.flottevehicule.flottevehicule.dto.ResponseDto;
 import com.flottevehicule.flottevehicule.entity.Entretien;
 import com.flottevehicule.flottevehicule.entity.Prestataire;
 import com.flottevehicule.flottevehicule.entity.Site;
@@ -14,7 +16,6 @@ import com.flottevehicule.flottevehicule.repository.EntretienRepository;
 import com.flottevehicule.flottevehicule.repository.PrestataireRepository;
 import com.flottevehicule.flottevehicule.repository.TypeEntretienRepository;
 import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,8 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class EntretienService {
+public class EntretienService extends AbstractCrudService {
 
     private final EntretienRepository entretienRepository;
     private final VehiculeRepository vehiculeRepository;
@@ -44,6 +44,38 @@ public class EntretienService {
 
     // F16 : Traçabilité mémoire pour éviter de resignaler le même véhicule avant son prochain entretien
     private final Set<Long> vehiculesSignales = ConcurrentHashMap.newKeySet();
+
+    public EntretienService(EntretienRepository entretienRepository,
+                            VehiculeRepository vehiculeRepository,
+                            TypeEntretienRepository typeEntretienRepository,
+                            PrestataireRepository prestataireRepository,
+                            PrestataireService prestataireService,
+                            TypeEntretienService typeEntretienService,
+                            VehiculeService vehiculeService) {
+        super(entretienRepository);
+        this.entretienRepository = entretienRepository;
+        this.vehiculeRepository = vehiculeRepository;
+        this.typeEntretienRepository = typeEntretienRepository;
+        this.prestataireRepository = prestataireRepository;
+        this.prestataireService = prestataireService;
+        this.typeEntretienService = typeEntretienService;
+        this.vehiculeService = vehiculeService;
+    }
+
+    @Override
+    public ResponseDto toDto(Object entity) {
+        return toDto((Entretien) entity);
+    }
+
+    @Override
+    public ResponseDto create(RequestDto request) {
+        return createEntretien((EntretienRequestDto) request);
+    }
+
+    @Override
+    public ResponseDto update(Long id, RequestDto request) {
+        return updateEntretienById(id, (EntretienRequestDto) request);
+    }
 
     public EntretienResponseDto toDto(Entretien entretien) {
         return EntretienResponseDto.builder()
@@ -154,7 +186,7 @@ public class EntretienService {
     }
 
     /**
-     * F16. Signaler les entretienexecuterDetectionAlertess dus.
+     * F16. Signaler les entretiens dus.
      * Déclencheur : tâche planifiée, exécutée chaque nuit.
      * Règle : un véhicule est signalé s'il est à moins de 1 000 km ou moins de trente jours de son échéance,
      * ou s'il l'a déjà dépassée.

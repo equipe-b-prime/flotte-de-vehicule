@@ -1,6 +1,8 @@
 package com.flottevehicule.flottevehicule.service;
 
 import com.flottevehicule.flottevehicule.dto.EtatAffectationResponseDto;
+import com.flottevehicule.flottevehicule.dto.RequestDto;
+import com.flottevehicule.flottevehicule.dto.ResponseDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeRequestDto;
 import com.flottevehicule.flottevehicule.dto.VehiculeResponseDto;
 import com.flottevehicule.flottevehicule.dto.ProchainEntretienResponseDto;
@@ -10,7 +12,6 @@ import com.flottevehicule.flottevehicule.exception.NotFoundException;
 import com.flottevehicule.flottevehicule.exception.RequeteInvalideException;
 import com.flottevehicule.flottevehicule.exception.RessourceUtiliseeException;
 import com.flottevehicule.flottevehicule.repository.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,8 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-public class VehiculeService {
+public class VehiculeService extends AbstractCrudService {
 
     private final VehiculeRepository vehiculeRepository;
     private final SiteRepository siteRepository;
@@ -30,6 +30,40 @@ public class VehiculeService {
     private final AffectationRepository affectationRepository;
     private final EntretienRepository entretienRepository;
     private final EtatAffectationRepository etatAffectationRepository;
+
+    public VehiculeService(VehiculeRepository vehiculeRepository,
+                           SiteRepository siteRepository,
+                           ContratRepository contratRepository,
+                           ContratService contratService,
+                           SiteService siteService,
+                           AffectationRepository affectationRepository,
+                           EntretienRepository entretienRepository,
+                           EtatAffectationRepository etatAffectationRepository) {
+        super(vehiculeRepository);
+        this.vehiculeRepository = vehiculeRepository;
+        this.siteRepository = siteRepository;
+        this.contratRepository = contratRepository;
+        this.contratService = contratService;
+        this.siteService = siteService;
+        this.affectationRepository = affectationRepository;
+        this.entretienRepository = entretienRepository;
+        this.etatAffectationRepository = etatAffectationRepository;
+    }
+
+    @Override
+    public ResponseDto toDto(Object entity) {
+        return toDto((Vehicule) entity);
+    }
+
+    @Override
+    public ResponseDto create(RequestDto request) {
+        return createVehicule((VehiculeRequestDto) request);
+    }
+
+    @Override
+    public ResponseDto update(Long id, RequestDto request) {
+        return updateVehiculeById(id, (VehiculeRequestDto) request);
+    }
 
     public EtatAffectationResponseDto toDto(EtatAffectation etat) {
         if (etat == null) return null;

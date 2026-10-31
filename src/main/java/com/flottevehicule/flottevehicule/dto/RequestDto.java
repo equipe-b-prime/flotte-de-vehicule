@@ -1,4 +1,7 @@
 package com.flottevehicule.flottevehicule.dto;
 
-public class RequestDto {
+/**
+ * Interface marqueur pour les DTO de requête.
+ */
+public interface RequestDto {
 }

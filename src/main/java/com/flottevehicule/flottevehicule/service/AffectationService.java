@@ -2,6 +2,8 @@ package com.flottevehicule.flottevehicule.service;
 
 import com.flottevehicule.flottevehicule.dto.AffectationRequestDto;
 import com.flottevehicule.flottevehicule.dto.AffectationResponseDto;
+import com.flottevehicule.flottevehicule.dto.RequestDto;
+import com.flottevehicule.flottevehicule.dto.ResponseDto;
 import com.flottevehicule.flottevehicule.dto.RestitutionRequestDto;
 import com.flottevehicule.flottevehicule.entity.Affectation;
 import com.flottevehicule.flottevehicule.entity.Entretien;
@@ -14,15 +16,13 @@ import com.flottevehicule.flottevehicule.repository.AffectationRepository;
 import com.flottevehicule.flottevehicule.repository.EntretienRepository;
 import com.flottevehicule.flottevehicule.repository.SalarieRepository;
 import com.flottevehicule.flottevehicule.repository.VehiculeRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-public class AffectationService {
+public class AffectationService extends AbstractCrudService {
 
     private final AffectationRepository affectationRepository;
     private final SalarieRepository salarieRepository;
@@ -30,6 +30,36 @@ public class AffectationService {
     private final EntretienRepository entretienRepository;
     private final SalarieService salarieService;
     private final VehiculeService vehiculeService;
+
+    public AffectationService(AffectationRepository affectationRepository,
+                              SalarieRepository salarieRepository,
+                              VehiculeRepository vehiculeRepository,
+                              EntretienRepository entretienRepository,
+                              SalarieService salarieService,
+                              VehiculeService vehiculeService) {
+        super(affectationRepository);
+        this.affectationRepository = affectationRepository;
+        this.salarieRepository = salarieRepository;
+        this.vehiculeRepository = vehiculeRepository;
+        this.entretienRepository = entretienRepository;
+        this.salarieService = salarieService;
+        this.vehiculeService = vehiculeService;
+    }
+
+    @Override
+    public ResponseDto toDto(Object entity) {
+        return toDto((Affectation) entity);
+    }
+
+    @Override
+    public ResponseDto create(RequestDto request) {
+        return createAffectation((AffectationRequestDto) request);
+    }
+
+    @Override
+    public ResponseDto update(Long id, RequestDto request) {
+        return updateAffectationById(id, (AffectationRequestDto) request);
+    }
 
     public AffectationResponseDto toDto(Affectation affectation) {
         return AffectationResponseDto.builder()

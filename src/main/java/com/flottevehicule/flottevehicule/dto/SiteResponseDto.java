@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SiteResponseDto {
+public class SiteResponseDto implements ResponseDto {
     private Long id;
     private String nom;
     private String ville;
